@@ -2,9 +2,9 @@ import React  from 'react';
 import { IonContent, IonRouterOutlet } from '@ionic/react';
 
 
-//import { App_Header } from '../components/App_Header';
+import { App_Header } from '../components/App_Header';
 import { Pokemon_Overview } from '../components/Tab_Overview';
-//import { App_Footer } from '../components/App_Footer';
+import { App_Footer } from '../components/App_Footer';
 
 
     function Homepage () {
@@ -15,11 +15,11 @@ import { Pokemon_Overview } from '../components/Tab_Overview';
 
                 {/*<App_Header></App_Header>*/}
 
-                <IonContent className='appContent'>
+                {/*<IonContent className='appContent'>*/}
 
                     <Pokemon_Overview />
 
-                </IonContent>
+                {/*</IonContent>*/}
                 
 
                 {/*<App_Footer></App_Footer>*/}

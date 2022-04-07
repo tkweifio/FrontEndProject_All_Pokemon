@@ -1,0 +1,91 @@
+
+.pokemon_showcase_slide {
+  position: relative;
+  display: inline-block;
+}
+
+.pokemon_showcase_card {
+    text-align: center;
+  }
+
+  .appHeader {
+    text-align: center;
+}
+
+.appContent {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    height: 60%;
+}
+.appContent_modal {
+  display: inline-block;
+  overflow: scroll;
+
+}
+.pokemon_showcase_main {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .appHeader_title {
+    font-size: 1.8em;
+    font-family: 'cursive';
+}
+
+.apFooter_button_center {
+    position: fixed;
+    width: 50%;
+    height: 4%;
+    bottom: 0%;
+    left: 15%;
+    right: 15%;
+    text-align: center;
+}
+
+.apFooter_button_topLeft {
+  position: fixed;
+  width: 10%;
+  height: 4%;
+  top: 5%;
+  left: 90%;
+  right: 0%;
+  text-align: center;
+}
+.apFooter_button_topRight {
+  position: fixed;
+  width: 10%;
+  height: 4%;
+  top: 5%;
+  left: 0%;
+  right: 90%;
+  text-align: center;
+}
+.apFooter_button_bottomLeft {
+  position: fixed;
+  width: 10%;
+  height: 4%;
+  bottom: 0%;
+  left: 90%;
+  right: 0%;
+  text-align: center;
+}
+.apFooter_button_bottomRight {
+  position: fixed;
+  width: 10%;
+  height: 4%;
+  bottom: 0%;
+  left: 0%;
+  right: 90%;
+  text-align: center;
+}
+.details_gridContent {
+  position: fixed;
+  text-align: left;
+  width: 100%;
+  height: 80%;
+  font-size: 1.2rem;
+  overflow: scroll;
+}
