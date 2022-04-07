@@ -3,8 +3,45 @@ import { IonItem, IonButton, IonSlides, IonGrid, IonTabs, IonTab, IonTabBar, Ion
 import { IonSlide, IonRow, IonCol, IonImg } from '@ionic/react';
 
 import '../css/pokemonApp.css';
+import { Storage } from '@capacitor/storage'
 
 import {Pokemon_Details_Modal } from './Pokemon_Details_revised';
+
+async function removeStorageItems() {
+
+
+    await Storage.remove({ key: 'sortedData' });
+    await Storage.remove({ key: 'sortedData_filtered' });
+    await Storage.remove({ key: 'searchData__name_value' });
+    await Storage.remove({ key: 'searchData__name_filteredList' });
+    await Storage.remove({ key: 'searchData_abilities_value' });
+    await Storage.remove({ key: 'searchData_abilities_filteredList' });
+}
+
+async function getStorageItems() {
+
+    //alert('In getStorageCredentials Merchant');
+ 
+     const  stored_storedData  = await Storage.get({ key: 'sortedData' });
+     const  stored_sortedData_filtered  = await Storage.get({ key: 'sortedData_filtered' });
+     const  stored_searchData__name_value  = await Storage.get({ key: 'searchData__name_value' });
+     const  stored_searchData__name_filteredList  = await Storage.get({ key: 'searchData__name_filteredList' });
+     const  stored_searchData_abilities_value  = await Storage.get({ key: 'searchData_abilities_value' });
+     const  stored_searchData_abilities_filteredList  = await Storage.get({ key: 'searchData_abilities_filteredList' });
+
+    let storageObjects = {
+        storedData: JSON.parse(stored_storedData.value),
+        storedData_filtered: JSON.parse(stored_sortedData_filtered.value),
+        searchData_name_value: stored_searchData__name_value.value,
+        searchData_name_filteredList: JSON.parse(stored_searchData__name_filteredList.value),
+        searchData_abilities_value: stored_searchData_abilities_value.value,
+        searchData_abilities_filteredList: JSON.parse(stored_searchData_abilities_filteredList.value),
+
+    }
+ 
+    return storageObjects;
+ 
+ }
 
 export function Pokemon_Overview (props) {
 
@@ -24,6 +61,69 @@ export function Pokemon_Overview (props) {
         let searchListRef_name = useRef('');
         let searchListRef_abilities = useRef('');
 
+        useEffect(() => {
+    
+            //removeStorageItems();
+
+            getStorageItems().then(res => { 
+
+
+                if(res.storedData != null)
+                {
+                    setAllPokemon(res.storedData);
+                }
+                if(res.storedData_filtered != null)
+                {
+                    setAllPokemon_filtered(res.storedData_filtered);
+                }
+                if(res.searchData_name_value != null)
+                {
+
+                    searchListRef_name.current.value = res.searchData_name_value;
+
+                    for (let rownum = 0; rownum <= res.searchData_name_filteredList.length - 1; ++rownum)
+                    {
+        
+                        setAllPokemon_filtered((prevAllPokemon_filtered) => {
+                            return prevAllPokemon_filtered.concat({
+                                id: rownum,
+                                name: res.searchData_name_filteredList[rownum].name,
+                                url: res.searchData_name_filteredList[rownum].url,
+                                image: res.searchData_name_filteredList[rownum].image,
+                                height:res.searchData_name_filteredList[rownum].height,
+                                weight: res.searchData_name_filteredList[rownum].weight,
+                                abilities: res.searchData_name_filteredList[rownum].abilities,
+        
+                            })
+                        });
+                    }
+
+                }
+                if(res.searchData_abilities_value != null)
+                {
+                    searchListRef_abilities.current.value = res.searchData_abilities_value;
+                    for (let rownum = 0; rownum <= res.searchData_abilities_filteredList.length - 1; ++rownum)
+                    {
+        
+                        setAllPokemon_filtered((prevAllPokemon_filtered) => {
+                            return prevAllPokemon_filtered.concat({
+                                id: rownum,
+                                name: res.searchData_abilities_filteredList[rownum].name,
+                                url: res.searchData_abilities_filteredList[rownum].url,
+                                image: res.searchData_abilities_filteredList[rownum].image,
+                                height:res.searchData_abilities_filteredList[rownum].height,
+                                weight: res.searchData_abilities_filteredList[rownum].weight,
+                                abilities: res.searchData_abilities_filteredList[rownum].abilities,
+        
+                            })
+                        });
+                    }
+                }
+    
+            });
+    
+        }, [])
+
 
 
         useEffect(() => {
@@ -32,25 +132,15 @@ export function Pokemon_Overview (props) {
                 .then(res => res.json())
                 .then(res => {
             
-                    //alert(res);
-                    //alert(Object.entries(res));
-                    //alert(Object.entries(res.results).length);
-            
-                    for (let rownum = 0; rownum < 20; ++rownum)
+                    //alert(res.results);
+                    //alert(res.results.length);
+
+                    for (let rownum = 0; rownum < 400; ++rownum)
                     {
 
                         fetch(Object.entries(res.results[rownum])[1][1])
                         .then(res2 => res2.json())
                         .then(res2 => {
-
-                                alert(Object.entries(res2.abilities).length);
-                                alert(res2.abilities.length);
-
-                                //alert(Object.entries(res2.abilities[0].ability));
-                                //alert(Object.entries(res2.abilities[1].ability));
-                                //alert(Object.entries(res2.abilities[1].ability)[0]);
-                                //alert(Object.entries(res2.abilities[1].ability)[0][0]);
-                               // alert(Object.entries(res2.abilities[1].ability)[0][1]);
 
                                 let listOfAbilities = [];
 
@@ -58,7 +148,7 @@ export function Pokemon_Overview (props) {
                                 {
                                     listOfAbilities.push(Object.entries(res2.abilities[row2].ability)[0][1]);
 
-                                    alert(listOfAbilities[row2]);
+                                    //alert(listOfAbilities[row2]);
 
                                 } 
 
@@ -74,148 +164,195 @@ export function Pokemon_Overview (props) {
                                     })
                                 });
                         })
-
-                        /*setAllPokemon((prevAllPokemon) => {
-                            return prevAllPokemon.concat({
-                                id: rownum,
-                                name: Object.entries(res.results[rownum])[0][1],
-                                url: Object.entries(res.results[rownum])[1][1],
-                            })
-                        });*/
                     } 
                 })
         }, []);
 
-        /*useEffect(() => {
-
-
-        }, [viewAllPokemon])*/
-
         function handleSortList(e)
         {
-            //e.persist();
-            //e.preventDefault();
-            //alert(e);
 
-            if(e.target.value == 'name')
+            if(searchListRef_name.current.value == '' && searchListRef_abilities.current.value == '')
             {
-                //setAllPokemon((prevAllPokemon) => {
-                //    return prevAllPokemon.concat(viewAllPokemon.sort((a, b) => a.name > b.name ? 1 : -1))
-                //});
-                const sortedData = () => [...viewAllPokemon].sort((a, b) => {
-                    
-                        return a.name > b.name ? 1 : -1
+                if(e.target.value == 'name')
+                {
+                    const sortedData = () => [...viewAllPokemon].sort((a, b) => {
+                        
+                            return a.name > b.name ? 1 : -1
+                        });
+    
+                    setAllPokemon(sortedData);
+
+                    Storage.set({
+                        key: 'sortedData',
+                        value: JSON.stringify(viewAllPokemon),
+                    })
+                }
+                if(e.target.value == 'height')
+                {
+                    const sortedData = () => [...viewAllPokemon].sort((a, b) => {
+                        return a.height > b.height ? 1 : -1
                     });
+    
+                    setAllPokemon(sortedData);
 
-                setAllPokemon(sortedData);
+                    Storage.set({
+                        key: 'sortedData',
+                        value: JSON.stringify(viewAllPokemon),
+                    })
+                }
+                if(e.target.value == 'weight')
+                {
+                    const sortedData = () => [...viewAllPokemon].sort((a, b) => {
+                        return a.weight > b.weight ? 1 : -1
+                    });
+    
+                    setAllPokemon(sortedData);
 
-                //alert(Object.entries(viewAllPokemon[0]));
+                    Storage.set({
+                        key: 'sortedData',
+                        value: JSON.stringify(viewAllPokemon),
+                    })
+                }
             }
-            if(e.target.value == 'height')
+            else if(searchListRef_name.current.value != '' || searchListRef_abilities.current.value != '')
             {
-                //setAllPokemon((prevAllPokemon) => {
-                //    return prevAllPokemon.concat(viewAllPokemon.sort((a, b) => a.height > b.height ? 1 : -1))
-                //});
-                const sortedData = () => [...viewAllPokemon].sort((a, b) => {
-                    return a.height > b.height ? 1 : -1
-                });
 
-                setAllPokemon(sortedData);
+                if(e.target.value == 'name')
+                {
+                    const sortedData = () => [...viewAllPokemon_filtered].sort((a, b) => {
+                        
+                            return a.name > b.name ? 1 : -1
+                        });
+    
+                        setAllPokemon_filtered(sortedData);
 
-                //alert(Object.entries(viewAllPokemon[0]));
 
-            }
-            if(e.target.value == 'weight')
-            {
-                //setAllPokemon((prevAllPokemon) => {
-                //    return prevAllPokemon.concat(viewAllPokemon.sort((a, b) => a.weight > b.weight ? 1 : -1))
-                //});
-                const sortedData = () => [...viewAllPokemon].sort((a, b) => {
-                    return a.weight > b.weight ? 1 : -1
-                });
+                        Storage.set({
+                            key: 'sortedData_filtered',
+                            value: JSON.stringify(viewAllPokemon_filtered),
+                        })
+                }
+                if(e.target.value == 'height')
+                {
+                    const sortedData = () => [...viewAllPokemon_filtered].sort((a, b) => {
+                        return a.height > b.height ? 1 : -1
+                    });
+    
+                    setAllPokemon_filtered(sortedData);
 
-                setAllPokemon(sortedData);
-                //alert(Object.entries(viewAllPokemon[0]));
+                    Storage.set({
+                        key: 'sortedData_filtered',
+                        value: JSON.stringify(viewAllPokemon_filtered),
+                    })
+    
+                }
+                if(e.target.value == 'weight')
+                {
+                    const sortedData = () => [...viewAllPokemon_filtered].sort((a, b) => {
+                        return a.weight > b.weight ? 1 : -1
+                    });
+    
+                    setAllPokemon_filtered(sortedData);
 
+                    Storage.set({
+                        key: 'sortedData_filtered',
+                        value: JSON.stringify(viewAllPokemon_filtered),
+                    })
+                }
             }
         }
 
         function handleSearchList_name()
         {
-            //const keyword = "Sar";
 
-            const filtered = viewAllPokemon.filter(entry => Object.values(entry.name).some(val => typeof val === "string" && val.includes(searchListRef_name.current.value)));
-            /*const filtered = () => [...viewAllPokemon].filter((entry) => {
-                
-                return entry.name.includes(searchListRef_name.current.value)
-            });*/
-
-            //alert(filtered);
-            //alert(filtered.length);
-
-            /*alert(filtered);
-            alert(Object.entries(filtered[0]));
-            alert(Object.keys(filtered[0]));
-            alert(filtered[0].name);
-            alert(filtered[0].url);
-            alert(filtered[0].image);*/
-
-            //setAllPokemon_filtered(filtered);
-
-            
-            for (let rownum = 0; rownum <= filtered.length - 1; ++rownum)
+            if(searchListRef_name.current.value == '')
             {
-
-                setAllPokemon_filtered((prevAllPokemon_filtered) => {
-                    return prevAllPokemon_filtered.concat({
-                        id: rownum,
-                        name: filtered[rownum].name,
-                        url: filtered[rownum].url,
-                        image: filtered[rownum].image,
-                        height:filtered[rownum].height,
-                        weight: filtered[rownum].weight,
-                        abilities: filtered[rownum].abilities,
-
-                    })
-                });
+                setAllPokemon_filtered([]);
             }
-            //alert(Object.entries(viewAllPokemon[0]));
+            else
+            {
+                const filtered = viewAllPokemon.filter(entry => Object.values(entry.name).some(val => typeof val === "string" && val.includes(searchListRef_name.current.value)));
+    
+                for (let rownum = 0; rownum <= filtered.length - 1; ++rownum)
+                {
+    
+                    setAllPokemon_filtered((prevAllPokemon_filtered) => {
+                        return prevAllPokemon_filtered.concat({
+                            id: rownum,
+                            name: filtered[rownum].name,
+                            url: filtered[rownum].url,
+                            image: filtered[rownum].image,
+                            height:filtered[rownum].height,
+                            weight: filtered[rownum].weight,
+                            abilities: filtered[rownum].abilities,
+    
+                        })
+                    });
+                }
+                Storage.set({
+                    key: 'searchData__name_value',
+                    value: searchListRef_name.current.value,
+                })
 
+
+                Storage.set({
+                    key: 'searchData__name_filteredList',
+                    value: JSON.stringify(filtered),
+                })
+            }
         }
 
         function handleSearchList_abilities()
         {
-            //const keyword = "Sar";
 
-            const filtered = viewAllPokemon.filter(entry => Object.values(entry).some(val => typeof val === "string" && val.includes(searchListRef_abilities.current.value)));
-
-            for (let rownum = 0; rownum <= filtered.length - 1; ++rownum)
+            if(searchListRef_abilities.current.value == '')
             {
+                setAllPokemon_filtered([]);
+            }
+            else
+            {
+                const filtered = viewAllPokemon.filter(entry => Object.values(entry).some(val => typeof val === "string" && val.includes(searchListRef_abilities.current.value)));
 
-                setAllPokemon_filtered((prevAllPokemon_filtered) => {
-                    return prevAllPokemon_filtered.concat({
-                        id: rownum,
-                        name: filtered[rownum].name,
-                        url: filtered[rownum].url,
-                        image: filtered[rownum].image,
-                        height:filtered[rownum].height,
-                        weight: filtered[rownum].weight,
-                        abilities: filtered[rownum].abilities,
+                for (let rownum = 0; rownum <= filtered.length - 1; ++rownum)
+                {
+    
+                    setAllPokemon_filtered((prevAllPokemon_filtered) => {
+                        return prevAllPokemon_filtered.concat({
+                            id: rownum,
+                            name: filtered[rownum].name,
+                            url: filtered[rownum].url,
+                            image: filtered[rownum].image,
+                            height:filtered[rownum].height,
+                            weight: filtered[rownum].weight,
+                            abilities: filtered[rownum].abilities,
+    
+                        })
+                    });
+                }
 
-                    })
-                });
+                Storage.set({
+                    key: 'searchData_abilities_value',
+                    value: searchListRef_abilities.current.value,
+                })
+
+                Storage.set({
+                    key: 'searchData_abilities_filteredList',
+                    value: JSON.stringify(filtered),
+                })
             }
         }
 
-        function nextSlide()
+        function nextSlide(event)
         {
             //const swiper = mySlides.current.getSwiper();
-            document.getElementById('viewAllPokemonSlides').slideNext();
+            document.getElementById(event).slideNext();
+
         }
-        function prevSlide()
+        function prevSlide(event)
         {
             //const swiper = mySlides.current.getSwiper();
-            document.getElementById('viewAllPokemonSlides').slidePrev();
+            document.getElementById(event).slidePrev();
+
         }
 
         function detailsModalHandler(event)
@@ -261,6 +398,9 @@ export function Pokemon_Overview (props) {
                         <IonCol size='3'>
                             <input placeholder= 'Search Abilities' ref={searchListRef_abilities} onChange={() => handleSearchList_abilities()}></input>
                         </IonCol>
+                        <IonCol>
+                            <IonButton onClick={() => removeStorageItems()}>Clear Storage</IonButton>
+                        </IonCol>
                         <IonCol size='6'> 
                             <select name="sortList" id='sortList' onChange={(e) => handleSortList(e) }>
                                 <option value='name' >Name</option>
@@ -277,17 +417,25 @@ export function Pokemon_Overview (props) {
                         </IonCol>
                     </IonRow>
                     <IonRow>
+                    {(searchListRef_name.current.value == '' && searchListRef_abilities.current.value == '') &&
                         <IonCol>
-                            <IonButton className='apFooter_button_topLeft' onClick={() => nextSlide()}> Next </IonButton>
-                            <IonButton className='apFooter_button_topRight' onClick={() => prevSlide()}> Back </IonButton>
+                            <IonButton className='apFooter_button_topLeft' onClick={() => nextSlide('viewAllPokemonSlides')}> Next </IonButton>
+                            <IonButton className='apFooter_button_topRight' onClick={() => prevSlide('viewAllPokemonSlides')}> Back </IonButton>
                         </IonCol>
+                    }
+                    {(searchListRef_name.current.value != '' || searchListRef_abilities.current.value != '') &&
+                        <IonCol>
+                            <IonButton className='apFooter_button_topLeft' onClick={() => nextSlide('viewAllPokemonSlides_filtered')}> Next </IonButton>
+                            <IonButton className='apFooter_button_topRight' onClick={() => prevSlide('viewAllPokemonSlides_filtered')}> Back </IonButton>
+                        </IonCol>
+                    }
                     </IonRow>
                 </IonGrid>
             {(searchListRef_name.current.value == '' && searchListRef_abilities.current.value == '') && 
             <IonSlides id='viewAllPokemonSlides' pager='true' options={{slidesPerView: viewsPerSlide}}>
                 {viewAllPokemon.map((detailData) =>   {
                         return (
-                                <IonSlide className='pokemon_showcase_slide'>
+                                <IonSlide >
                                     <IonCard className='pokemon_showcase_card' style={{width: '100%', height: '100%'}}>
                                         <IonImg className='pokemon_showcase_main' src={detailData.image} style={{width: '50%', height: '70%'}}></IonImg>
                                         <IonGrid>
@@ -321,10 +469,10 @@ export function Pokemon_Overview (props) {
             </IonSlides>
             }
             {(searchListRef_name.current.value != '' || searchListRef_abilities.current.value != '') && 
-            <IonSlides pager='true' options={{slidesPerView: viewsPerSlide}}>
+            <IonSlides id='viewAllPokemonSlides_filtered' pager='true' options={{slidesPerView: viewsPerSlide}}>
                 {viewAllPokemon_filtered.map((detailData) =>   {
                         return (
-                                <IonSlide key={detailData.id}>
+                                <IonSlide >
                                     <IonCard className='pokemon_showcase_card' style={{width: '50%', height: '70%'}}>
                                         <IonImg className='pokemon_showcase_main' src={detailData.image} style={{width: '50%', height: '70%'}}></IonImg>
                                         <IonGrid>
@@ -360,11 +508,20 @@ export function Pokemon_Overview (props) {
 
             <IonGrid>
                 <IonRow>
+                {(searchListRef_name.current.value == '' && searchListRef_abilities.current.value == '') &&
                     <IonCol>
-                        <IonButton className='apFooter_button_bottomLeft' onClick={() => nextSlide()}> Next </IonButton>
-                        <IonButton className='apFooter_button_bottomRight' onClick={() => prevSlide()}> Back </IonButton>
-                    </IonCol>
+                        <IonButton className='apFooter_button_bottomLeft' onClick={() => nextSlide('viewAllPokemonSlides')}> Next </IonButton>
+                        <IonButton className='apFooter_button_bottomRight' onClick={() => prevSlide('viewAllPokemonSlides')}> Back </IonButton>
+                    </IonCol> 
+                }
+                {(searchListRef_name.current.value != '' || searchListRef_abilities.current.value != '') &&
+                    <IonCol>
+                        <IonButton className='apFooter_button_bottomLeft' onClick={() => nextSlide('viewAllPokemonSlides_filtered')}> Next </IonButton>
+                        <IonButton className='apFooter_button_bottomRight' onClick={() => prevSlide('viewAllPokemonSlides_filtered')}> Back </IonButton>
+                    </IonCol> 
+                }
                 </IonRow>
+               
             </IonGrid>
             </IonContent>
 

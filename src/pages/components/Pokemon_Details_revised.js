@@ -20,8 +20,6 @@ export function Pokemon_Details_Modal(props) {
             })
     }, []);
 
-    //alert(details);
-
     return (
         <React.Fragment>
         <IonModal isOpen={true}>
